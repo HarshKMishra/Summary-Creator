@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Summarization Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .chat-box {
+            overflow-y: auto;
+            max-height: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            max-width: 70%;
+        }
+        .user-message {
+            background-color: #f3f3f3;
+            color: #333;
+            text-align: right;
+        }
+        .summary-message {
+            background-color: #007bff;
+            color: #fff;
+            text-align: left;
+        }
+        .input-box {
+            display: flex;
+        }
+        .input-box textarea {
+            flex: 1;
+            height: 40px;
+            margin-right: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+        }
+        .input-box button {
+            height: 40px;
+            padding: 0 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Text Summarization Chat</h1>
+        <div class="chat-box" id="chat-box">
+            <div class="message summary-message">Welcome! Type a message to summarize.</div>
+        </div>
+        <div class="input-box">
+            <textarea id="input-text" rows="1" placeholder="Type here..."></textarea>
+            <button onclick="summarize()">Send</button>
+        </div>
+    </div>
+    <script>
+        function summarize() {
+            var inputText = document.getElementById('input-text').value.trim();
+            if (inputText === '') return;
+            // Display user message
+            var userMessage = document.createElement('div');
+            userMessage.classList.add('message', 'user-message');
+            userMessage.textContent = inputText;
+            document.getElementById('chat-box').appendChild(userMessage);
+            // Clear input
+            document.getElementById('input-text').value = '';
+            // Scroll to bottom
+            document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+            // Send input to server for summarization
+            fetch('/summarize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ input_text: inputText })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display summary message
+                var summaryMessage = document.createElement('div');
+                summaryMessage.classList.add('message', 'summary-message');
+                summaryMessage.textContent = data.summary;
+                document.getElementById('chat-box').appendChild(summaryMessage);
+                // Scroll to bottom
+                document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
